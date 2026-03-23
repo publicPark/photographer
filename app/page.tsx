@@ -13,7 +13,7 @@ export default async function HomePage() {
             Award-winning <br /> photographer & director <br /> based in Seoul
           </h2>
           <h2 className="text-xl md:text-2xl lg:text-3xl font-normal leading-[1.4] tracking-tight mb-6 animate-fade-in">
-            폰으로 마음에 드는 것을 사진으로 남기는
+            마음에 드는 것을 보면 폰을 들어 사진으로 남기는
             <br />
             아마추어 사진 작가 & 디렉터입니다.
             <br />
