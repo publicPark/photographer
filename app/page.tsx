@@ -7,15 +7,6 @@ export default async function HomePage() {
   return (
     <div className="pt-24 md:pt-32">
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
-        {/* 히어로 텍스트 (선택사항) */}
-        <header className="mb-16 md:mb-24 lg:mb-32">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            Amateur photographer
-            <br />
-            Based in Seoul, actively shooting around the city.
-          </h1>
-        </header>
-
         {/* 프로젝트 섹션들 */}
         {projects.length > 0 ? (
           projects.map((project, index) => (

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getProjectBySlug, getAllProjects } from "@/lib/sanity";
-import { formatDate } from "@/lib/utils";
 import ImageGallery from "@/components/ImageGallery";
 import ProjectNav from "@/components/ProjectNav";
 import type { Metadata } from "next";
@@ -45,15 +44,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <article className="pt-24 md:pt-32 pb-16">
       {/* 프로젝트 헤더 */}
-      <header className="max-w-4xl mx-auto px-6 md:px-8 mb-12 md:mb-16">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+      <header className="max-w-3xl mx-auto px-6 md:px-8 mb-16 md:mb-20 text-center">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4">
           {project.title}
         </h1>
-        <div className="text-gray-600 text-sm md:text-base mb-6">
-          {formatDate(project.date)}
-        </div>
         {project.description && (
-          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+          <p className="text-base md:text-lg text-gray-600 leading-relaxed">
             {project.description}
           </p>
         )}

@@ -30,6 +30,13 @@ export interface ProjectImage {
   asset: {
     _ref: string;
     url: string;
+    metadata?: {
+      dimensions?: {
+        width: number;
+        height: number;
+        aspectRatio: number;
+      };
+    };
   };
   alt?: string;
   caption?: string;
@@ -40,7 +47,7 @@ export interface ProjectImage {
 export interface ProjectVideo {
   _type: "video";
   _key: string;
-  videoType: "file" | "youtube" | "vimeo";
+  videoType: "file" | "youtube";
   videoFile?: {
     asset: {
       _ref: string;
@@ -97,7 +104,16 @@ export async function getAllProjects(): Promise<Project[]> {
         _id,
         title,
         slug,
-        images,
+        images[] {
+          ...,
+          asset-> {
+            _ref,
+            url,
+            metadata {
+              dimensions
+            }
+          }
+        },
         description,
         date
       }

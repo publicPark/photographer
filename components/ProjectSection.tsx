@@ -19,11 +19,11 @@ function getYouTubeId(url: string): string | null {
   return match && match[2].length === 11 ? match[2] : null;
 }
 
-// Vimeo URL에서 비디오 ID 추출
-function getVimeoId(url: string): string | null {
-  const regExp = /vimeo.*\/(\d+)/i;
-  const match = url.match(regExp);
-  return match ? match[1] : null;
+// Sanity 비디오 파일 URL 생성
+function getSanityVideoUrl(projectId: string | undefined, dataset: string | undefined, assetRef: string): string {
+  if (!projectId) return "";
+  const cleanRef = assetRef.replace("file-", "").replace("-", ".");
+  return `https://cdn.sanity.io/files/${projectId}/${dataset}/${cleanRef}`;
 }
 
 // 미디어 아이템 렌더링 컴포넌트
@@ -34,6 +34,7 @@ function MediaItem({
   loading,
   className,
   containerClassName = "",
+  delay = 0,
 }: {
   media: ProjectMedia;
   projectSlug: string;
@@ -41,13 +42,60 @@ function MediaItem({
   loading?: "eager" | "lazy";
   className?: string;
   containerClassName?: string;
+  delay?: number;
 }) {
-  const isVideo = media._type === "video";
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const videoRef = useRef<HTMLDivElement>(null);
+  const itemRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (media._type !== "video") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [media._type]);
+
+  useEffect(() => {
+    if (!itemRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    observer.observe(itemRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const useFill = containerClassName.includes("h-full");
+
+  // 동영상 ID 미리 계산 (중복 호출 방지)
+  const youtubeId = media._type === "video" && media.videoType === "youtube" && media.url
+    ? getYouTubeId(media.url)
+    : null;
 
   const content =
     media._type === "image" ? (
       // 이미지 렌더링
-      containerClassName.includes("flex-1") ? (
+      useFill ? (
         <Image
           src={urlFor(media).width(800).quality(90).url()}
           alt={alt}
@@ -69,42 +117,77 @@ function MediaItem({
       )
     ) : media.videoType === "youtube" && media.url ? (
       // YouTube 동영상
-      <div className="absolute inset-0">
-        <iframe
-          src={`https://www.youtube.com/embed/${getYouTubeId(media.url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(media.url)}&controls=0&showinfo=0&rel=0&modestbranding=1`}
-          className="w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          style={{ pointerEvents: "none" }}
-        />
-      </div>
-    ) : media.videoType === "vimeo" && media.url ? (
-      // Vimeo 동영상
-      <div className="absolute inset-0">
-        <iframe
-          src={`https://player.vimeo.com/video/${getVimeoId(media.url)}?autoplay=1&muted=1&loop=1&background=1`}
-          className="w-full h-full"
-          allow="autoplay; fullscreen; picture-in-picture"
-          style={{ pointerEvents: "none" }}
-        />
+      <div ref={videoRef} className={useFill ? "absolute inset-0" : "relative"}>
+        {/* 썸네일 배경 (항상 표시) */}
+        {media.thumbnail && (
+          <Image
+            src={urlFor(media.thumbnail).width(800).quality(90).url()}
+            alt={alt}
+            fill={useFill}
+            width={useFill ? undefined : 800}
+            height={useFill ? undefined : 800}
+            className={useFill ? "object-cover" : "w-full h-auto"}
+          />
+        )}
+        {/* 동영상 오버레이 */}
+        {shouldLoadVideo && youtubeId && (
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+            className="absolute inset-0 w-full h-full z-10"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
       </div>
     ) : media.videoType === "file" && media.videoFile ? (
       // 업로드된 비디오 파일
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className={`${className} ${containerClassName.includes("flex-1") ? "absolute inset-0 w-full h-full" : ""}`}
-        style={{ pointerEvents: "none" }}
-      >
-        <source
-          src={`${client.config().projectId ? `https://cdn.sanity.io/files/${client.config().projectId}/${client.config().dataset}/` : ""}${media.videoFile.asset._ref.replace("file-", "").replace("-", ".")}`}
-        />
-      </video>
+      <div ref={videoRef} className={useFill ? "absolute inset-0" : "relative"}>
+        {/* 썸네일 배경 (항상 표시) */}
+        {media.thumbnail && (
+          <Image
+            src={urlFor(media.thumbnail).width(800).quality(90).url()}
+            alt={alt}
+            fill={useFill}
+            width={useFill ? undefined : 800}
+            height={useFill ? undefined : 800}
+            className={useFill ? "object-cover" : "w-full h-auto"}
+          />
+        )}
+        {/* 동영상 오버레이 */}
+        {shouldLoadVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={`absolute inset-0 z-10 ${className} ${useFill ? "w-full h-full" : ""}`}
+            style={{ pointerEvents: "none" }}
+          >
+            <source
+              src={getSanityVideoUrl(client.config().projectId, client.config().dataset, media.videoFile.asset._ref)}
+            />
+          </video>
+        )}
+      </div>
     ) : null;
 
+  const linkClassName = [
+    "group",
+    useFill ? "absolute inset-0" : "relative",
+    "overflow-hidden",
+    "bg-gray-100",
+    "transition-all duration-700",
+    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
+    containerClassName
+  ].filter(Boolean).join(" ");
+
   return (
-    <Link href={`/projects/${projectSlug}`} className={`group relative overflow-hidden bg-gray-100 ${containerClassName}`}>
+    <Link
+      ref={itemRef}
+      href={`/projects/${projectSlug}`}
+      className={linkClassName}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
       {content}
     </Link>
   );
@@ -112,24 +195,87 @@ function MediaItem({
 
 export default function ProjectSection({ project, index }: ProjectSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [isTextVisible, setIsTextVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [calculatedHeights, setCalculatedHeights] = useState<{
+    left1: number;
+    right1: number;
+    left2: number;
+    right2: number;
+  } | null>(null);
 
   useEffect(() => {
+    if (!textRef.current) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true);
+          setIsTextVisible(true);
         }
       },
       { threshold: 0.1, rootMargin: "50px" }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    observer.observe(textRef.current);
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const calculateHeights = () => {
+      if (!containerRef.current) return;
+
+      const featuredMedia = project.featuredMedia || [];
+      if (featuredMedia.length < 4) return;
+
+      // 컨테이너 너비 가져오기
+      const containerWidth = containerRef.current.clientWidth;
+      // gap 고려 (gap-4 = 16px)
+      const gap = 16;
+      const columnWidth = (containerWidth - gap) / 2;
+
+      // 각 이미지의 높이 계산
+      const heights = featuredMedia.slice(0, 4).map((media) => {
+        if (media._type === "image" && media.asset.metadata?.dimensions) {
+          const { width, height } = media.asset.metadata.dimensions;
+          return (columnWidth * height) / width;
+        } else if (media._type === "video" && media.thumbnail?.asset.metadata?.dimensions) {
+          const { width, height } = media.thumbnail.asset.metadata.dimensions;
+          return (columnWidth * height) / width;
+        }
+        return 400; // fallback
+      });
+
+      const [h1, h2, h3, h4] = heights;
+
+      // 전체 높이 = 첫 번째 행의 두 높이 합
+      const totalHeight = h1 + h2;
+
+      // 두 번째 행 높이 계산
+      const left2 = totalHeight - h1 - gap;
+      const right2 = totalHeight - h2 - gap;
+
+      setCalculatedHeights({
+        left1: h1,
+        right1: h2,
+        left2: Math.max(left2, 200), // 최소 높이 보장
+        right2: Math.max(right2, 200),
+      });
+    };
+
+    // 초기 계산
+    calculateHeights();
+
+    // resize 시 재계산
+    window.addEventListener('resize', calculateHeights);
+
+    return () => {
+      window.removeEventListener('resize', calculateHeights);
+    };
+  }, [project.featuredMedia]);
 
   const featuredMedia = project.featuredMedia || [];
 
@@ -148,61 +294,76 @@ export default function ProjectSection({ project, index }: ProjectSectionProps) 
   return (
     <section
       ref={sectionRef}
-      className={`mb-24 md:mb-32 lg:mb-40 transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className="mb-24 md:mb-32 lg:mb-40"
     >
       {/* 메이슨리 레이아웃 (마지막 줄만 크롭) */}
-      <div className="flex gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+      <div ref={containerRef} className="flex gap-4 mb-6 md:mb-8">
         {/* 왼쪽 컬럼 */}
-        <div className="flex-1 flex flex-col gap-3 md:gap-4 lg:gap-6">
-          {/* 첫 번째 미디어 - 원본 비율 */}
-          <MediaItem
-            media={featuredMedia[0]}
-            projectSlug={project.slug.current}
-            alt={getMediaAlt(featuredMedia[0], 0)}
-            loading={index === 0 ? "eager" : "lazy"}
-            className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
-            containerClassName="w-full"
-          />
+        <div className="flex-1 flex flex-col gap-4">
+          {/* 첫 번째 미디어 - 계산된 높이 */}
+          <div style={{ height: calculatedHeights ? `${calculatedHeights.left1}px` : 'auto' }} className="w-full overflow-hidden relative">
+            <MediaItem
+              media={featuredMedia[0]}
+              projectSlug={project.slug.current}
+              alt={getMediaAlt(featuredMedia[0], 0)}
+              loading={index === 0 ? "eager" : "lazy"}
+              className="object-cover"
+              containerClassName="w-full h-full"
+              delay={0}
+            />
+          </div>
 
-          {/* 세 번째 미디어 - 남은 공간 채우기 (크롭) */}
-          <MediaItem
-            media={featuredMedia[2]}
-            projectSlug={project.slug.current}
-            alt={getMediaAlt(featuredMedia[2], 2)}
-            loading="lazy"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            containerClassName="flex-1 min-h-[300px]"
-          />
+          {/* 세 번째 미디어 - 계산된 높이로 크롭 */}
+          <div style={{ height: calculatedHeights ? `${calculatedHeights.left2}px` : 'auto' }} className="w-full overflow-hidden relative">
+            <MediaItem
+              media={featuredMedia[2]}
+              projectSlug={project.slug.current}
+              alt={getMediaAlt(featuredMedia[2], 2)}
+              loading="lazy"
+              className="object-cover"
+              containerClassName="w-full h-full"
+              delay={200}
+            />
+          </div>
         </div>
 
         {/* 오른쪽 컬럼 */}
-        <div className="flex-1 flex flex-col gap-3 md:gap-4 lg:gap-6">
-          {/* 두 번째 미디어 - 원본 비율 */}
-          <MediaItem
-            media={featuredMedia[1]}
-            projectSlug={project.slug.current}
-            alt={getMediaAlt(featuredMedia[1], 1)}
-            loading={index === 0 ? "eager" : "lazy"}
-            className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
-            containerClassName="w-full"
-          />
+        <div className="flex-1 flex flex-col gap-4">
+          {/* 두 번째 미디어 - 계산된 높이 */}
+          <div style={{ height: calculatedHeights ? `${calculatedHeights.right1}px` : 'auto' }} className="w-full overflow-hidden relative">
+            <MediaItem
+              media={featuredMedia[1]}
+              projectSlug={project.slug.current}
+              alt={getMediaAlt(featuredMedia[1], 1)}
+              loading={index === 0 ? "eager" : "lazy"}
+              className="object-cover"
+              containerClassName="w-full h-full"
+              delay={100}
+            />
+          </div>
 
-          {/* 네 번째 미디어 - 남은 공간 채우기 (크롭) */}
-          <MediaItem
-            media={featuredMedia[3]}
-            projectSlug={project.slug.current}
-            alt={getMediaAlt(featuredMedia[3], 3)}
-            loading="lazy"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            containerClassName="flex-1 min-h-[300px]"
-          />
+          {/* 네 번째 미디어 - 계산된 높이로 크롭 */}
+          <div style={{ height: calculatedHeights ? `${calculatedHeights.right2}px` : 'auto' }} className="w-full overflow-hidden relative">
+            <MediaItem
+              media={featuredMedia[3]}
+              projectSlug={project.slug.current}
+              alt={getMediaAlt(featuredMedia[3], 3)}
+              loading="lazy"
+              className="object-cover"
+              containerClassName="w-full h-full"
+              delay={300}
+            />
+          </div>
         </div>
       </div>
 
       {/* 텍스트 영역 */}
-      <div className="max-w-3xl">
+      <div
+        ref={textRef}
+        className={`max-w-3xl transition-all duration-700 delay-400 ${
+          isTextVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
+      >
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 leading-tight">
           {project.title}
         </h2>

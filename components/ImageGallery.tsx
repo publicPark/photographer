@@ -13,13 +13,6 @@ function getYouTubeId(url: string): string | null {
   return match && match[2].length === 11 ? match[2] : null;
 }
 
-// Vimeo URL에서 비디오 ID 추출
-function getVimeoId(url: string): string | null {
-  const regExp = /vimeo.*\/(\d+)/i;
-  const match = url.match(regExp);
-  return match ? match[1] : null;
-}
-
 export default function ImageGallery({ images }: ImageGalleryProps) {
   if (!images || images.length === 0) {
     return null;
@@ -56,16 +49,6 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
                     src={`https://www.youtube.com/embed/${getYouTubeId(item.url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(item.url)}`}
                     className="absolute top-0 left-0 w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              )}
-              {item.videoType === "vimeo" && item.url && (
-                <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-                  <iframe
-                    src={`https://player.vimeo.com/video/${getVimeoId(item.url)}?autoplay=1&muted=1&loop=1`}
-                    className="absolute top-0 left-0 w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
                   />
                 </div>

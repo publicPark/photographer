@@ -88,7 +88,6 @@ export default defineType({
                 list: [
                   { title: "파일 업로드", value: "file" },
                   { title: "YouTube", value: "youtube" },
-                  { title: "Vimeo", value: "vimeo" },
                 ],
                 layout: "radio",
               },

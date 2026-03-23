@@ -9,21 +9,36 @@ export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+
+      // 스크롤 방향 감지
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // 아래로 스크롤 중이고 100px 이상 스크롤했을 때 헤더 숨김
+        setIsVisible(false);
+      } else {
+        // 위로 스크롤 중이거나 최상단 근처일 때 헤더 표시
+        setIsVisible(true);
+      }
+
+      setIsScrolled(currentScrollY > 20);
+      setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+        isScrolled ? "bg-white/90 backdrop-blur-sm shadow-sm" : "bg-white/70 backdrop-blur-sm",
+        isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
       <nav className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 h-20 md:h-24 flex items-center justify-between">
@@ -37,6 +52,15 @@ export default function Header() {
 
         {/* 데스크톱 메뉴 */}
         <div className="hidden md:flex items-center gap-10 lg:gap-12">
+          <Link
+            href="/work"
+            className={cn(
+              "text-sm md:text-base font-medium transition-opacity hover:opacity-60",
+              pathname === "/work" && "opacity-100"
+            )}
+          >
+            Work
+          </Link>
           <Link
             href="/about"
             className={cn(
@@ -87,6 +111,13 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-6 py-4 space-y-4">
+            <Link
+              href="/work"
+              className="block py-2 text-lg font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Work
+            </Link>
             <Link
               href="/about"
               className="block py-2 text-lg font-medium"
