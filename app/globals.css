@@ -12,7 +12,8 @@ body {
   font-feature-settings: "kern" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
+  font-weight: 300;
 }
 
 /* 스크롤바 커스텀 (미니멀) */
@@ -37,4 +38,41 @@ body {
 ::selection {
   background: #000;
   color: #fff;
+}
+
+/* 반응형 컨테이너 (레퍼런스 스타일) */
+.responsive-container {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: calc(6vw - 11px);
+  padding-right: calc(6vw - 11px);
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    padding-left: calc(4vw - 11px);
+    padding-right: calc(4vw - 11px);
+  }
+}
+
+/* Hero Section 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.3s forwards;
 }
