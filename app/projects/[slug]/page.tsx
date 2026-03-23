@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProjectBySlug, getAllProjects } from "@/lib/sanity";
-import ImageGallery from "@/components/ImageGallery";
+import ProjectDetailGallery from "@/components/ProjectDetailGallery";
 import ProjectNav from "@/components/ProjectNav";
 import type { Metadata } from "next";
 
@@ -42,24 +42,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   return (
-    <article className="pt-24 md:pt-32 pb-16">
-      {/* 프로젝트 헤더 */}
-      <header className="max-w-3xl mx-auto px-6 md:px-8 mb-16 md:mb-20 text-center">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium mb-4">
-          {project.title}
-        </h1>
-        {project.description && (
-          <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-            {project.description}
-          </p>
-        )}
-      </header>
-
-      {/* 이미지/동영상 갤러리 */}
-      <ImageGallery images={project.images} />
+    <article className="pb-16">
+      {/* Masonry 갤러리 */}
+      <ProjectDetailGallery
+        images={project.images}
+        title={project.title}
+        description={project.description}
+      />
 
       {/* 다음/이전 프로젝트 네비게이션 */}
-      <ProjectNav prev={project.prevProject} next={project.nextProject} />
+      {/* <ProjectNav prev={project.prevProject} next={project.nextProject} /> */}
     </article>
   );
 }

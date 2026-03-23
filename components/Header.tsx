@@ -5,12 +5,27 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-export default function Header() {
+interface Project {
+  _id: string;
+  title: string;
+  slug: { current: string };
+}
+
+interface HeaderProps {
+  projects: Project[];
+}
+
+export default function Header({ projects = [] }: HeaderProps) {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isWorkHovered, setIsWorkHovered] = useState(false);
+  const [isMobileWorkExpanded, setIsMobileWorkExpanded] = useState(false);
+
+  // 프로젝트 상세 페이지 체크
+  const isProjectDetailPage = pathname?.startsWith("/projects/");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,101 +52,157 @@ export default function Header() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "bg-white/90 backdrop-blur-sm shadow-sm" : "bg-white/70 backdrop-blur-sm",
+        isProjectDetailPage && !isScrolled
+          ? "bg-transparent"
+          : isScrolled
+            ? "bg-white/50 backdrop-blur-sm"
+            : "bg-white/50 backdrop-blur-sm",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <nav className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 h-20 md:h-24 flex items-center justify-between">
-        {/* 로고 */}
-        <Link
-          href="/"
-          className="text-lg md:text-xl font-semibold tracking-tight hover:opacity-60 transition-opacity"
-        >
-          Jiyun
-        </Link>
-
-        {/* 데스크톱 메뉴 */}
-        <div className="hidden md:flex items-center gap-10 lg:gap-12">
+      <nav className="responsive-container flex flex-col">
+        <div className="h-20 md:h-24 flex items-center justify-between">
+          {/* 로고 */}
           <Link
-            href="/work"
+            href="/"
             className={cn(
-              "text-sm md:text-base font-medium transition-opacity hover:opacity-60",
-              pathname === "/work" && "opacity-100"
+              "text-lg md:text-3xl font-medium tracking-tight hover:opacity-60 transition-opacity",
+              isProjectDetailPage && !isScrolled ? "text-white" : "text-black"
             )}
+            onClick={(e) => {
+              if (pathname === "/") {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
           >
-            Work
+            Jiyun
           </Link>
-          <Link
-            href="/about"
-            className={cn(
-              "text-sm md:text-base font-medium transition-opacity hover:opacity-60",
-              pathname === "/about" && "opacity-100"
-            )}
-          >
-            About
-          </Link>
-          <a
-            href="mailto:hello@jiyun.com"
-            className="text-sm md:text-base font-medium transition-opacity hover:opacity-60"
-          >
-            Contact
-          </a>
-        </div>
 
-        {/* 모바일 햄버거 버튼 */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden p-2"
-          aria-label="메뉴 토글"
-        >
+          {/* 데스크톱 메뉴 */}
+          <div className="hidden md:flex items-center gap-10 lg:gap-12">
+            {/* Work 버튼 */}
+            <button
+              onMouseEnter={() => setIsWorkHovered(true)}
+              className={cn(
+                "text-sm md:text-base font-normal transition-opacity hover:opacity-60 cursor-default",
+                isProjectDetailPage && !isScrolled ? "text-white" : "text-black"
+              )}
+            >
+              Work
+            </button>
+
+            <Link
+              href="/about"
+              className={cn(
+                "text-sm md:text-base font-normal transition-opacity hover:opacity-60",
+                pathname === "/about" && "opacity-100",
+                isProjectDetailPage && !isScrolled ? "text-white" : "text-black"
+              )}
+            >
+              About
+            </Link>
+          </div>
+
+          {/* 모바일 햄버거 버튼 */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2"
+            aria-label="메뉴 토글"
+          >
           <div className="w-6 h-5 flex flex-col justify-between">
             <span
               className={cn(
-                "block h-0.5 w-full bg-black transition-transform",
-                isMobileMenuOpen && "rotate-45 translate-y-2"
+                "block h-0.5 w-full transition-transform",
+                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
+                isMobileMenuOpen && "rotate-45 translate-y-[9px]"
               )}
             />
             <span
               className={cn(
-                "block h-0.5 w-full bg-black transition-opacity",
+                "block h-0.5 w-full transition-opacity",
+                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
                 isMobileMenuOpen && "opacity-0"
               )}
             />
             <span
               className={cn(
-                "block h-0.5 w-full bg-black transition-transform",
-                isMobileMenuOpen && "-rotate-45 -translate-y-2"
+                "block h-0.5 w-full transition-transform",
+                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
+                isMobileMenuOpen && "-rotate-45 -translate-y-[9px]"
               )}
             />
           </div>
         </button>
+        </div>
+
+        {/* Work 드롭다운 확장 영역 */}
+        {isWorkHovered && projects.length > 0 && (
+          <div
+            className="hidden md:block pb-6"
+            onMouseLeave={() => setIsWorkHovered(false)}
+          >
+            <div className="flex justify-end gap-6">
+              {projects.map((project) => (
+                <Link
+                  key={project._id}
+                  href={`/projects/${project.slug.current}`}
+                  className={cn(
+                    "text-sm font-normal hover:underline transition-all",
+                    isProjectDetailPage && !isScrolled
+                      ? "text-white"
+                      : "text-black"
+                  )}
+                >
+                  {project.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* 모바일 메뉴 */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
+        <div className="md:hidden bg-white/50 backdrop-blur-sm">
           <div className="px-6 py-4 space-y-4">
-            <Link
-              href="/work"
-              className="block py-2 text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Work
-            </Link>
+            {/* Work 섹션 */}
+            <div>
+              <button
+                onClick={() => setIsMobileWorkExpanded(!isMobileWorkExpanded)}
+                className="block py-2 text-lg font-normal w-full text-left flex items-center justify-between"
+              >
+                <span>Work</span>
+                <span className="text-sm">
+                  {isMobileWorkExpanded ? "−" : "+"}
+                </span>
+              </button>
+              {isMobileWorkExpanded && projects.length > 0 && (
+                <div className="pl-4 mt-1 space-y-1">
+                  {projects.map((project) => (
+                    <Link
+                      key={project._id}
+                      href={`/projects/${project.slug.current}`}
+                      className="block py-2 text-base font-normal"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setIsMobileWorkExpanded(false);
+                      }}
+                    >
+                      {project.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link
               href="/about"
-              className="block py-2 text-lg font-medium"
+              className="block py-2 text-lg font-normal"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
             </Link>
-            <a
-              href="mailto:hello@jiyun.com"
-              className="block py-2 text-lg font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact
-            </a>
           </div>
         </div>
       )}

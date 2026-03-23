@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef, useEffect, useState } from "react";
 import { urlFor, client } from "@/lib/sanity";
-import { formatDate } from "@/lib/utils";
 import type { Project, ProjectMedia } from "@/lib/sanity";
 
 interface ProjectSectionProps {
@@ -214,8 +213,6 @@ export default function ProjectSection({
   } | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
     const calculateHeights = () => {
       if (!containerRef.current) return;
 
@@ -224,8 +221,8 @@ export default function ProjectSection({
 
       // 컨테이너 너비 가져오기
       const containerWidth = containerRef.current.clientWidth;
-      // gap 고려 (11px)
-      const gap = 11;
+      // gap 고려 (2.2vw)
+      const gap = containerWidth * 0.022;
       const columnWidth = (containerWidth - gap) / 2;
 
       // 각 이미지의 원본 비율 높이 계산
@@ -278,13 +275,14 @@ export default function ProjectSection({
       });
     };
 
-    // 초기 계산
-    calculateHeights();
+    // 초기 계산 (약간 지연시켜서 containerRef가 준비될 때까지 대기)
+    const timer = setTimeout(calculateHeights, 0);
 
     // resize 시 재계산
     window.addEventListener("resize", calculateHeights);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("resize", calculateHeights);
     };
   }, [project.featuredMedia]);
@@ -303,18 +301,29 @@ export default function ProjectSection({
     }
   };
 
+  // aspect ratio 기반 임시 높이 계산
+  const getAspectRatio = (media: ProjectMedia) => {
+    if (media._type === "image" && media.asset.metadata?.dimensions) {
+      return media.asset.metadata.dimensions.aspectRatio;
+    } else if (media._type === "video" && media.thumbnail?.asset.metadata?.dimensions) {
+      return media.thumbnail.asset.metadata.dimensions.aspectRatio;
+    }
+    return 1;
+  };
+
   return (
     <section ref={sectionRef} className="mb-24 md:mb-32 lg:mb-40">
       {/* 메이슨리 레이아웃 (마지막 줄만 크롭) */}
-      <div ref={containerRef} className="flex gap-[11px] mb-6 md:mb-8">
+      <div ref={containerRef} className="flex gap-[2.2vw] mb-6 md:mb-8">
         {/* 왼쪽 컬럼 */}
-        <div className="flex-1 flex flex-col gap-[11px]">
+        <div className="flex-1 flex flex-col gap-[2.2vw]">
           {/* 첫 번째 미디어 */}
           <div
             style={{
               height: calculatedHeights
                 ? `${calculatedHeights.left1}px`
-                : "auto",
+                : undefined,
+              aspectRatio: !calculatedHeights ? `${getAspectRatio(featuredMedia[0])}` : undefined,
             }}
             className="w-full overflow-hidden relative"
           >
@@ -333,7 +342,8 @@ export default function ProjectSection({
             style={{
               height: calculatedHeights
                 ? `${calculatedHeights.left2}px`
-                : "auto",
+                : undefined,
+              aspectRatio: !calculatedHeights ? `${getAspectRatio(featuredMedia[2])}` : undefined,
             }}
             className="w-full overflow-hidden relative"
           >
@@ -349,13 +359,14 @@ export default function ProjectSection({
         </div>
 
         {/* 오른쪽 컬럼 */}
-        <div className="flex-1 flex flex-col gap-[11px]">
+        <div className="flex-1 flex flex-col gap-[2.2vw]">
           {/* 두 번째 미디어 */}
           <div
             style={{
               height: calculatedHeights
                 ? `${calculatedHeights.right1}px`
-                : "auto",
+                : undefined,
+              aspectRatio: !calculatedHeights ? `${getAspectRatio(featuredMedia[1])}` : undefined,
             }}
             className="w-full overflow-hidden relative"
           >
@@ -374,7 +385,8 @@ export default function ProjectSection({
             style={{
               height: calculatedHeights
                 ? `${calculatedHeights.right2}px`
-                : "auto",
+                : undefined,
+              aspectRatio: !calculatedHeights ? `${getAspectRatio(featuredMedia[3])}` : undefined,
             }}
             className="w-full overflow-hidden relative"
           >
@@ -393,13 +405,13 @@ export default function ProjectSection({
       {/* 프로젝트 정보 */}
       <div className="whitespace-pre-line">
         {project.description && (
-          <p className="text-lg md:text-2xl text-gray-900 font-medium leading-relaxed mb-6">
+          <p className="text-lg md:text-2xl text-gray-900 font-normal leading-relaxed mb-6">
             {project.description}
           </p>
         )}
         <Link
           href={`/projects/${project.slug.current}`}
-          className="inline-block text-lg md:text-2xl font-medium tracking-normal underline transition-all"
+          className="inline-block text-lg md:text-2xl font-normal tracking-normal underline transition-all"
         >
           View Project →
         </Link>

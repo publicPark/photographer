@@ -7,19 +7,19 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600">
           <p>© {currentYear} Jiyun. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <a
+            {/* <a
               href="https://instagram.com/jiyun"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-black transition-colors"
             >
               Instagram
-            </a>
+            </a> */}
             <a
-              href="mailto:hello@jiyun.com"
+              href="mailto:jiyuniverse@gmail.com"
               className="hover:text-black transition-colors"
             >
-              Email
+              jiyuniverse@gmail.com
             </a>
           </div>
         </div>

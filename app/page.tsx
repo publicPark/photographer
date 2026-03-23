@@ -5,13 +5,20 @@ export default async function HomePage() {
   const projects = await getAllProjects();
 
   return (
-    <div className="pt-24 md:pt-32">
+    <div className="pt-24 md:pt-38">
       {/* Hero Section */}
-      <section className="responsive-container mb-24 md:mb-32 lg:mb-40">
-        <div className="text-left md:max-w-[50%] md:text-center md:mx-auto">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-light leading-[1.4] tracking-tight mb-6 animate-fade-in">
-            Award-winning photographer & director based in Seoul
-          </h1>
+      <section className="responsive-container mb-8 md:mb-16 lg:mb-24">
+        <div className="text-left">
+          <h2 className="text-xl md:text-2xl lg:text-4xl font-medium leading-[1.4] tracking-tight mb-6 animate-fade-in">
+            Award-winning <br /> photographer & director <br /> based in Seoul
+          </h2>
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-normal leading-[1.4] tracking-tight mb-6 animate-fade-in">
+            폰으로 마음에 드는 것을 사진으로 남기는
+            <br />
+            아마추어 사진 작가 & 디렉터입니다.
+            <br />
+            아래 프로젝트를 통해 사진 작업을 확인해보세요.
+          </h2>
         </div>
       </section>
 

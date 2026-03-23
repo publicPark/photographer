@@ -59,6 +59,13 @@ export interface ProjectVideo {
     asset: {
       _ref: string;
       url: string;
+      metadata?: {
+        dimensions?: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        };
+      };
     };
   };
   caption?: string;

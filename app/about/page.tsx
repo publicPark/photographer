@@ -28,19 +28,16 @@ export default function AboutPage() {
             About
           </h1>
 
-          <div className="space-y-6 text-gray-700 leading-relaxed">
-            <p>안녕하세요, 포토그래퍼 지윤입니다.</p>
+          <div className="space-y-6 text-gray-700 leading-relaxed font-normal">
+            <p>안녕하세요, 아마추어 사진 작가 지윤입니다.</p>
 
             <p>
-              빛과 그림자, 순간과 영원 사이에서 이야기를 포착하는 작업을 하고
-              있습니다. 상업 사진부터 개인 작업까지, 다양한 프로젝트를 통해
-              시각적 내러티브를 만들어갑니다.
+              보통은 폰으로 사진을 찍습니다. 사진을 통해 세상을 다르게 보는
+              방법을 탐구하며, 각 프로젝트마다 고유한 감성과 메시지를 담아내기
+              위해 노력합니다.
             </p>
 
-            <p>
-              사진을 통해 세상을 다르게 보는 방법을 탐구하며, 각 프로젝트마다
-              고유한 감성과 메시지를 담아내기 위해 노력합니다.
-            </p>
+            <p>본업은 개발자입니다. 알바도 합니다.</p>
           </div>
 
           {/* 경력 */}
@@ -48,14 +45,14 @@ export default function AboutPage() {
             <h2 className="text-2xl md:text-3xl font-bold mb-6">Experience</h2>
             <ul className="space-y-4 text-gray-700">
               <li>
-                <strong>2023 - Present</strong>
+                <strong>2026 - Present</strong>
                 <br />
                 Freelance amateur photographer
               </li>
               <li>
-                <strong>2021 - 2023</strong>
+                <strong>2020 - 2026</strong>
                 <br />
-                Senior amateur photographer, ASDF Studio
+                Software engineer
               </li>
             </ul>
           </div>
@@ -70,20 +67,12 @@ export default function AboutPage() {
                   href="mailto:jiyuniverse@gmail.com"
                   className="underline hover:text-black transition-colors"
                 >
-                  hello@jiyun.com
+                  jiyuniverse@gmail.com
                 </a>
               </p>
-              <p>
-                <strong>Instagram:</strong>{" "}
-                <a
-                  href="https://instagram.com/jiyun"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-black transition-colors"
-                >
-                  @jiyun
-                </a>
-              </p>
+              {/* <p>
+                <strong>Instagram:</strong> 없음
+              </p> */}
             </div>
           </div>
         </div>
