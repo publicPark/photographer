@@ -51,7 +51,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       />
 
       {/* 다음/이전 프로젝트 네비게이션 */}
-      {/* <ProjectNav prev={project.prevProject} next={project.nextProject} /> */}
+      <ProjectNav prev={project.prevProject} next={project.nextProject} />
     </article>
   );
 }

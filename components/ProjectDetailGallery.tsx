@@ -211,67 +211,75 @@ export default function ProjectDetailGallery({
     <>
       {/* Hero Section - 배경 이미지 + 텍스트 오버레이 */}
       <div className="relative w-full min-h-[60vh] md:min-h-[70vh] mb-12 md:mb-20">
-        {/* 배경 이미지 */}
-        {heroImage._type === "image" ? (
-          <Image
-            src={urlFor(heroImage).width(2400).quality(90).url()}
-            alt={heroImage.alt || title}
-            fill
-            className="object-cover"
-            loading="eager"
-            priority
-            sizes="100vw"
-          />
-        ) : heroImage.videoType === "youtube" && heroImage.url ? (
-          <>
-            {heroImage.thumbnail && (
-              <Image
-                src={urlFor(heroImage.thumbnail).width(2400).quality(90).url()}
-                alt={title}
-                fill
-                className="object-cover"
-                priority
-              />
-            )}
-            <iframe
-              src={`https://www.youtube.com/embed/${getYouTubeId(heroImage.url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(heroImage.url)}&controls=0&showinfo=0&rel=0&modestbranding=1`}
-              className="absolute inset-0 w-full h-full z-10 object-cover"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              style={{ pointerEvents: "none", objectFit: "cover" }}
+        {/* 배경 이미지 (absolute) */}
+        <div className="absolute inset-0">
+          {heroImage._type === "image" ? (
+            <Image
+              src={urlFor(heroImage).width(2400).quality(90).url()}
+              alt={heroImage.alt || title}
+              fill
+              className="object-cover"
+              loading="eager"
+              priority
+              sizes="100vw"
             />
-          </>
-        ) : heroImage.videoType === "file" && heroImage.videoFile ? (
-          <>
-            {heroImage.thumbnail && (
-              <Image
-                src={urlFor(heroImage.thumbnail).width(2400).quality(90).url()}
-                alt={title}
-                fill
-                className="object-cover"
-                priority
+          ) : heroImage.videoType === "youtube" && heroImage.url ? (
+            <>
+              {heroImage.thumbnail && (
+                <Image
+                  src={urlFor(heroImage.thumbnail)
+                    .width(2400)
+                    .quality(90)
+                    .url()}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              )}
+              <iframe
+                src={`https://www.youtube.com/embed/${getYouTubeId(heroImage.url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(heroImage.url)}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                className="absolute inset-0 w-full h-full z-10 object-cover"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                style={{ pointerEvents: "none", objectFit: "cover" }}
               />
-            )}
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 z-10 w-full h-full object-cover"
-              style={{ pointerEvents: "none" }}
-            >
-              <source
-                src={getSanityVideoUrl(
-                  client.config().projectId,
-                  client.config().dataset,
-                  heroImage.videoFile.asset._ref
-                )}
-              />
-            </video>
-          </>
-        ) : null}
+            </>
+          ) : heroImage.videoType === "file" && heroImage.videoFile ? (
+            <>
+              {heroImage.thumbnail && (
+                <Image
+                  src={urlFor(heroImage.thumbnail)
+                    .width(2400)
+                    .quality(90)
+                    .url()}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              )}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 z-10 w-full h-full object-cover"
+                style={{ pointerEvents: "none" }}
+              >
+                <source
+                  src={getSanityVideoUrl(
+                    client.config().projectId,
+                    client.config().dataset,
+                    heroImage.videoFile.asset._ref
+                  )}
+                />
+              </video>
+            </>
+          ) : null}
+        </div>
 
-        {/* 텍스트 오버레이 */}
-        <div className="absolute inset-0 flex items-center z-20 pointer-events-none py-12 md:py-16">
+        {/* 텍스트 오버레이 (relative) */}
+        <div className="relative flex items-center z-20 pointer-events-none pt-24 pb-12 md:py-16 min-h-[60vh] md:min-h-[70vh]">
           <div className="responsive-container">
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-4xl lg:text-5xl text-white font-semibold tracking-tight mb-6">

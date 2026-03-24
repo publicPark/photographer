@@ -52,11 +52,13 @@ export default function Header({ projects = [] }: HeaderProps) {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isProjectDetailPage && !isScrolled
-          ? "bg-transparent"
-          : isScrolled
-            ? "bg-white/50 backdrop-blur-sm"
-            : "bg-white/50 backdrop-blur-sm",
+        isMobileMenuOpen
+          ? "bg-white/50 backdrop-blur-sm"
+          : isProjectDetailPage && !isScrolled
+            ? "bg-transparent"
+            : isScrolled
+              ? "bg-white/50 backdrop-blur-sm"
+              : "bg-white/50 backdrop-blur-sm",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
@@ -67,7 +69,11 @@ export default function Header({ projects = [] }: HeaderProps) {
             href="/"
             className={cn(
               "text-lg md:text-3xl font-medium tracking-tight hover:opacity-60 transition-opacity",
-              isProjectDetailPage && !isScrolled ? "text-white" : "text-black"
+              isMobileMenuOpen
+                ? "text-black"
+                : isProjectDetailPage && !isScrolled
+                  ? "text-white"
+                  : "text-black"
             )}
             onClick={(e) => {
               if (pathname === "/") {
@@ -114,21 +120,33 @@ export default function Header({ projects = [] }: HeaderProps) {
             <span
               className={cn(
                 "block h-0.5 w-full transition-transform",
-                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
+                isMobileMenuOpen
+                  ? "bg-black"
+                  : isProjectDetailPage && !isScrolled
+                    ? "bg-white"
+                    : "bg-black",
                 isMobileMenuOpen && "rotate-45 translate-y-[9px]"
               )}
             />
             <span
               className={cn(
                 "block h-0.5 w-full transition-opacity",
-                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
+                isMobileMenuOpen
+                  ? "bg-black"
+                  : isProjectDetailPage && !isScrolled
+                    ? "bg-white"
+                    : "bg-black",
                 isMobileMenuOpen && "opacity-0"
               )}
             />
             <span
               className={cn(
                 "block h-0.5 w-full transition-transform",
-                isProjectDetailPage && !isScrolled ? "bg-white" : "bg-black",
+                isMobileMenuOpen
+                  ? "bg-black"
+                  : isProjectDetailPage && !isScrolled
+                    ? "bg-white"
+                    : "bg-black",
                 isMobileMenuOpen && "-rotate-45 -translate-y-[9px]"
               )}
             />
@@ -164,13 +182,13 @@ export default function Header({ projects = [] }: HeaderProps) {
 
       {/* 모바일 메뉴 */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white/50 backdrop-blur-sm">
+        <div className="md:hidden">
           <div className="px-6 py-4 space-y-4">
             {/* Work 섹션 */}
             <div>
               <button
                 onClick={() => setIsMobileWorkExpanded(!isMobileWorkExpanded)}
-                className="block py-2 text-lg font-normal w-full text-left flex items-center justify-between"
+                className="block py-2 text-lg font-normal w-full text-left flex items-center justify-between text-black"
               >
                 <span>Work</span>
                 <span className="text-sm">
@@ -183,7 +201,7 @@ export default function Header({ projects = [] }: HeaderProps) {
                     <Link
                       key={project._id}
                       href={`/projects/${project.slug.current}`}
-                      className="block py-2 text-base font-normal"
+                      className="block py-2 text-base font-normal text-black"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         setIsMobileWorkExpanded(false);
@@ -198,7 +216,7 @@ export default function Header({ projects = [] }: HeaderProps) {
 
             <Link
               href="/about"
-              className="block py-2 text-lg font-normal"
+              className="block py-2 text-lg font-normal text-black"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
