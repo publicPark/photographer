@@ -61,13 +61,20 @@ function GalleryItem({
     return () => observer.disconnect();
   }, []);
 
+  const handleClick = () => {
+    // 데스크톱(768px 이상)에서만 확대 기능 활성화
+    if (media._type === "image" && window.innerWidth >= 768) {
+      onImageClick();
+    }
+  };
+
   return (
     <div
       ref={itemRef}
-      className={`break-inside-avoid mb-[2.2vw] cursor-pointer hover:opacity-90 transition-all duration-700 ${
+      className={`break-inside-avoid mb-[2.2vw] md:cursor-pointer md:hover:opacity-90 transition-all duration-700 ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
-      onClick={() => media._type === "image" && onImageClick()}
+      onClick={handleClick}
     >
       {media._type === "image" ? (
         <Image
@@ -80,16 +87,10 @@ function GalleryItem({
           sizes="(max-width: 768px) 50vw, 33vw"
         />
       ) : media.videoType === "youtube" && media.url ? (
-        <div
-          className="relative w-full"
-          style={{ paddingBottom: "56.25%" }}
-        >
+        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
           {media.thumbnail && (
             <Image
-              src={urlFor(media.thumbnail)
-                .width(800)
-                .quality(90)
-                .url()}
+              src={urlFor(media.thumbnail).width(800).quality(90).url()}
               alt={`${title} - Video ${index + 2}`}
               fill
               className="object-cover"
@@ -106,10 +107,7 @@ function GalleryItem({
         <div className="relative w-full">
           {media.thumbnail && (
             <Image
-              src={urlFor(media.thumbnail)
-                .width(800)
-                .quality(90)
-                .url()}
+              src={urlFor(media.thumbnail).width(800).quality(90).url()}
               alt={`${title} - Video ${index + 2}`}
               width={800}
               height={450}
@@ -212,7 +210,7 @@ export default function ProjectDetailGallery({
   return (
     <>
       {/* Hero Section - 배경 이미지 + 텍스트 오버레이 */}
-      <div className="relative w-full h-[60vh] md:h-[70vh] min-h-[400px] max-h-[800px] mb-12 md:mb-16">
+      <div className="relative w-full min-h-[60vh] md:min-h-[70vh] mb-12 md:mb-20">
         {/* 배경 이미지 */}
         {heroImage._type === "image" ? (
           <Image
@@ -273,7 +271,7 @@ export default function ProjectDetailGallery({
         ) : null}
 
         {/* 텍스트 오버레이 */}
-        <div className="absolute inset-0 flex items-center z-20 pointer-events-none">
+        <div className="absolute inset-0 flex items-center z-20 pointer-events-none py-12 md:py-16">
           <div className="responsive-container">
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-4xl lg:text-5xl text-white font-semibold tracking-tight mb-6">
@@ -292,7 +290,7 @@ export default function ProjectDetailGallery({
       {/* 갤러리 - CSS Columns (Masonry) */}
       {galleryImages.length > 0 && (
         <div className="responsive-container">
-          <div className="columns-2 md:columns-3 gap-[2.2vw] space-y-[2.2vw]">
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-[2.2vw]">
             {galleryImages.map((media, index) => {
               // asset이 없는 미디어는 스킵
               if (media._type === "image" && !media.asset) return null;
