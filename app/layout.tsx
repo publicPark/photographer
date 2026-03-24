@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     title: "Jiyun - Photographer",
     description: "포토그래퍼 지윤의 포트폴리오",
     type: "website",
+    // url: "https://yourdomain.com",
+    // siteName: "Jiyun - Photographer",
   },
 };
 
@@ -30,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className={`${notoSansKR.variable} min-h-full bg-white text-black flex flex-col font-sans`}>
+      <body
+        className={`${notoSansKR.variable} min-h-full bg-white text-black flex flex-col font-sans`}
+      >
         <HeaderWrapper />
         <main className="flex-1">{children}</main>
         <Footer />

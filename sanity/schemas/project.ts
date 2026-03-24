@@ -25,7 +25,8 @@ export default defineType({
       name: "images",
       title: "프로젝트 미디어 (이미지/동영상)",
       type: "array",
-      description: "이미지와 동영상을 자유롭게 업로드하고, 대표 이미지 4개와 커버 이미지 1개를 선택하세요",
+      description:
+        "이미지와 동영상을 자유롭게 업로드하고, 대표 이미지 4개와 커버 이미지 1개를 선택하세요",
       of: [
         {
           type: "image",
@@ -65,7 +66,8 @@ export default defineType({
               const badges = [];
               if (isFeatured) badges.push("대표");
               if (isCover) badges.push("커버");
-              const badgeText = badges.length > 0 ? ` [${badges.join(", ")}]` : "";
+              const badgeText =
+                badges.length > 0 ? ` [${badges.join(", ")}]` : "";
 
               return {
                 title: (alt || "이미지") + badgeText,
@@ -106,7 +108,7 @@ export default defineType({
               name: "url",
               title: "동영상 URL",
               type: "url",
-              description: "YouTube 또는 Vimeo URL을 입력하세요",
+              description: "YouTube URL을 입력하세요",
               hidden: ({ parent }: any) => parent?.videoType === "file",
               validation: (Rule) =>
                 Rule.custom((url: string, context: any) => {
@@ -120,7 +122,8 @@ export default defineType({
               name: "thumbnail",
               title: "썸네일 이미지 (필수)",
               type: "image",
-              description: "홈페이지 그리드와 커버에 표시될 썸네일 (대표로 선택 시 필수)",
+              description:
+                "홈페이지 그리드와 커버에 표시될 썸네일 (대표로 선택 시 필수)",
               validation: (Rule) =>
                 Rule.custom((thumbnail: any, context: any) => {
                   const parent = context.parent as any;
@@ -134,7 +137,8 @@ export default defineType({
               name: "isFeatured",
               title: "대표 미디어로 사용",
               type: "boolean",
-              description: "홈페이지 그리드에 썸네일이 표시됩니다 (정확히 4개 선택)",
+              description:
+                "홈페이지 그리드에 썸네일이 표시됩니다 (정확히 4개 선택)",
               initialValue: false,
             },
             {
@@ -162,10 +166,13 @@ export default defineType({
               const badges = [];
               if (isFeatured) badges.push("대표");
               if (isCover) badges.push("커버");
-              const badgeText = badges.length > 0 ? ` [${badges.join(", ")}]` : "";
+              const badgeText =
+                badges.length > 0 ? ` [${badges.join(", ")}]` : "";
 
               return {
-                title: (videoType === "file" ? "업로드된 동영상" : url || "동영상") + badgeText,
+                title:
+                  (videoType === "file" ? "업로드된 동영상" : url || "동영상") +
+                  badgeText,
                 subtitle: videoType?.toUpperCase() || "VIDEO",
                 media: thumbnail,
               };
@@ -180,7 +187,9 @@ export default defineType({
             if (!items) return true;
 
             // 이미지와 동영상 모두에서 대표/커버 선택 가능
-            const featuredCount = items.filter((item: any) => item.isFeatured).length;
+            const featuredCount = items.filter(
+              (item: any) => item.isFeatured
+            ).length;
             const coverCount = items.filter((item: any) => item.isCover).length;
 
             if (featuredCount !== 4) {

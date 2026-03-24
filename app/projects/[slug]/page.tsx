@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProjectBySlug, getAllProjects } from "@/lib/sanity";
+import { getProjectBySlug, getAllProjects, urlFor } from "@/lib/sanity";
 import ProjectDetailGallery from "@/components/ProjectDetailGallery";
 import ProjectNav from "@/components/ProjectNav";
 import type { Metadata } from "next";
@@ -20,9 +20,34 @@ export async function generateMetadata({
     };
   }
 
+  // 첫 번째 이미지를 OG 이미지로 사용
+  const firstImage = project.images?.[0];
+  const ogImageUrl =
+    firstImage?._type === "image" && firstImage.asset
+      ? urlFor(firstImage).width(1200).height(630).quality(90).url()
+      : null;
+
+  const description = project.description || project.title;
+
   return {
     title: `${project.title} - Jiyun`,
-    description: project.description || project.title,
+    description: description,
+    openGraph: {
+      title: project.title,
+      description: description,
+      type: "website",
+      // url: `https://yourdomain.com/projects/${slug}`,
+      images: ogImageUrl
+        ? [
+            {
+              url: ogImageUrl,
+              width: 1200,
+              height: 630,
+              alt: project.title,
+            },
+          ]
+        : [],
+    },
   };
 }
 
