@@ -10,7 +10,8 @@ export default async function HomePage() {
       <section className="responsive-container mb-8 md:mb-16 lg:mb-24">
         <div className="text-left">
           <h2 className="text-xl md:text-2xl lg:text-4xl font-medium leading-[1.4] tracking-tight mb-6 animate-fade-in">
-            Award-winning <br /> photographer & director <br /> based in Seoul
+            Self-award-winning <br /> photographer & director <br /> based in
+            Seoul
           </h2>
           <h2 className="text-xl md:text-2xl lg:text-3xl font-normal leading-[1.4] tracking-tight mb-6 animate-fade-in">
             마음에 드는 것을 보면 폰을 들어 사진으로 남기는
