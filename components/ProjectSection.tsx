@@ -205,12 +205,31 @@ export default function ProjectSection({
 }: ProjectSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [isTextVisible, setIsTextVisible] = useState(false);
   const [calculatedHeights, setCalculatedHeights] = useState<{
     left1: number;
     right1: number;
     left2: number;
     right2: number;
   } | null>(null);
+
+  useEffect(() => {
+    if (!textRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsTextVisible(true);
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    );
+
+    observer.observe(textRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const calculateHeights = () => {
@@ -403,7 +422,12 @@ export default function ProjectSection({
       </div>
 
       {/* 프로젝트 정보 */}
-      <div className="whitespace-pre-line">
+      <div
+        ref={textRef}
+        className={`whitespace-pre-line transition-all duration-700 ${
+          isTextVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
+      >
         {project.description && (
           <p className="text-lg md:text-2xl text-gray-900 font-normal leading-relaxed mb-6">
             {project.description}
