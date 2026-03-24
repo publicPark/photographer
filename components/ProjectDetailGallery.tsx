@@ -63,7 +63,7 @@ function GalleryItem({
 
   const handleClick = () => {
     // 데스크톱(768px 이상)에서만 확대 기능 활성화
-    if (media._type === "image" && window.innerWidth >= 768) {
+    if (window.innerWidth >= 768) {
       onImageClick();
     }
   };
@@ -71,7 +71,7 @@ function GalleryItem({
   return (
     <div
       ref={itemRef}
-      className={`break-inside-avoid mb-[2.2vw] md:cursor-pointer md:hover:opacity-90 transition-all duration-700 ${
+      className={`break-inside-avoid mb-[2.2vw] md:cursor-pointer transition-all duration-700 relative group ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       onClick={handleClick}
@@ -132,6 +132,15 @@ function GalleryItem({
           </video>
         </div>
       ) : null}
+
+      {/* 반투명 오버레이 (alt 텍스트 있을 때만, 터치/hover 시 표시) */}
+      {media._type === "image" && media.alt && (
+        <div className="flex absolute inset-0 bg-white/30 backdrop-blur-xs opacity-0 group-active:opacity-100 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center p-4 md:p-6 z-20 pointer-events-none">
+          <p className="text-black text-sm lg:text-base text-center font-medium">
+            {media.alt}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -362,7 +371,7 @@ export default function ProjectDetailGallery({
             ›
           </button>
 
-          {/* 이미지 */}
+          {/* 이미지/동영상 */}
           <div
             className="relative min-w-[200px] min-h-[200px]"
             onClick={(e) => e.stopPropagation()}
@@ -391,6 +400,36 @@ export default function ProjectDetailGallery({
                   />
                 </>
               )}
+
+            {images[lightboxIndex]._type === "video" && (
+              <div className="relative w-[90vw] max-w-4xl aspect-video">
+                {images[lightboxIndex].videoType === "youtube" &&
+                images[lightboxIndex].url ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeId(images[lightboxIndex].url)}?autoplay=1&mute=0&controls=1&showinfo=1&rel=0`}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : images[lightboxIndex].videoType === "file" &&
+                  images[lightboxIndex].videoFile ? (
+                  <video
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                    style={{ pointerEvents: "auto" }}
+                  >
+                    <source
+                      src={getSanityVideoUrl(
+                        client.config().projectId,
+                        client.config().dataset,
+                        images[lightboxIndex].videoFile.asset._ref
+                      )}
+                    />
+                  </video>
+                ) : null}
+              </div>
+            )}
           </div>
         </div>
       )}
